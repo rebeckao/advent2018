@@ -7,7 +7,7 @@ class FrequencyCalibration {
 
     public static void main(String[] args) {
         FrequencyCalibration frequencyCalibration = new FrequencyCalibration();
-        String fileName = "./src/main/resources/1pt1.txt";
+        String fileName = "./src/main/resources/day1_frequencies.txt";
 
         try (Stream<String> stream = Files.lines(Paths.get(fileName))) {
             int calibratedFrequency = frequencyCalibration.calibrateFrequency(stream);
