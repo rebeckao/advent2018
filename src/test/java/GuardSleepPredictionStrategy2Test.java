@@ -5,7 +5,7 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class GuardSleepPredictionTest {
+class GuardSleepPredictionStrategy2Test {
     private static final String ORDERED_OBSERVATIONS =
             "[1518-11-01 00:00] Guard #10 begins shift;" +
             "[1518-11-01 00:05] falls asleep;" +
@@ -42,12 +42,12 @@ class GuardSleepPredictionTest {
             "[1518-11-05 00:03] Guard #99 begins shift;" +
             "[1518-11-02 00:50] wakes up;" +
             "[1518-11-03 00:05] Guard #10 begins shift";
-    private GuardSleepPrediction guardSleepPrediction = new GuardSleepPrediction();
+    private GuardSleepPredictionStrategy2 guardSleepPredictionStrategy2 = new GuardSleepPredictionStrategy2();
 
     @ParameterizedTest
     @CsvSource({ORDERED_OBSERVATIONS, UNORDERED_OBSERVATIONS})
     void mostSleepyMinute(String observations) {
-        int actual = guardSleepPrediction.mostSleepyMinute(Stream.of(observations.split(";")));
-        assertEquals(240, actual);
+        int actual = guardSleepPredictionStrategy2.mostSleepyMinute(Stream.of(observations.split(";")));
+        assertEquals(4455, actual);
     }
 }
