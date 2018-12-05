@@ -10,6 +10,7 @@ import java.util.stream.IntStream;
 
 @Getter
 class GuardShift {
+    private static final Pattern LOG_ENTRY = Pattern.compile("\\[[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:([0-9]{2})] (.*)");
     private static final Pattern SHIFT_START = Pattern.compile("Guard #([0-9]+) begins shift");
     private static final String FALL_ASLEEP = "falls asleep";
     private static final String WAKES_UP = "wakes up";
@@ -40,14 +41,15 @@ class GuardShift {
         return IntStream.of(minutesAsleep).sum();
     }
 
-    static List<GuardShift> resolveGuardShifts(List<SleepObservation> observations) {
+    static List<GuardShift> resolveGuardShifts(List<String> logEntries) {
         List<GuardShift> guardShifts = new ArrayList<>();
         GuardShift currentGuardShift = new GuardShift(-1);
 
-        for (SleepObservation sleepObservation : observations) {
-            String observation = sleepObservation.getObservation();
+        for (String logEntry : logEntries) {
+            Matcher logEntryMatch = parseLogEntry(logEntry);
+            String observation = logEntryMatch.group(2);
             Matcher match = SHIFT_START.matcher(observation);
-            int minute = sleepObservation.getTime().getMinute();
+            int minute = Integer.parseInt(logEntryMatch.group(1));
             if (match.matches()) {
                 currentGuardShift = new GuardShift(Integer.parseInt(match.group(1)));
                 guardShifts.add(currentGuardShift);
@@ -56,9 +58,17 @@ class GuardShift {
             } else if (observation.equals(WAKES_UP)) {
                 currentGuardShift.registerAwake(minute);
             } else {
-                throw new RuntimeException(String.format("Failed to parse observation %s", observation));
+                throw new IllegalStateException(String.format("Failed to parse observation %s", observation));
             }
         }
         return guardShifts;
+    }
+
+    private static Matcher parseLogEntry(String logEntry) {
+        Matcher logEntryMatch = LOG_ENTRY.matcher(logEntry);
+        if (!logEntryMatch.matches()) {
+            throw new IllegalStateException(String.format("Failed to parse observation %s", logEntry));
+        }
+        return logEntryMatch;
     }
 }

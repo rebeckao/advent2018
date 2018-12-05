@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
 class GuardSleepPredictionStrategy1 {
@@ -25,9 +26,9 @@ class GuardSleepPredictionStrategy1 {
         }
     }
 
-    int mostSleepyMinute(Stream<String> sleepObservations) {
-        List<SleepObservation> observations = SleepObservation.sortObservations(sleepObservations);
-        List<GuardShift> guardShifts = GuardShift.resolveGuardShifts(observations);
+    int mostSleepyMinute(Stream<String> logEntries) {
+        List<String> sortedEntries = logEntries.sorted().collect(toList());
+        List<GuardShift> guardShifts = GuardShift.resolveGuardShifts(sortedEntries);
         Integer mostSleepyGuard = resolveMostSleepyGuard(guardShifts);
         Integer mostSleepyMinute = resolveMostSleepyMinute(guardShifts, mostSleepyGuard);
         return mostSleepyGuard * mostSleepyMinute;
