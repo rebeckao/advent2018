@@ -1,3 +1,5 @@
+package sleeppredicition;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

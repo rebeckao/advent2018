@@ -1,3 +1,5 @@
+package sleeppredicition;
+
 import lombok.Getter;
 
 import java.util.ArrayList;
