@@ -3,10 +3,7 @@ package sleigh;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -27,6 +24,21 @@ class InstructionOrder {
     }
 
     String correctOrder(Stream<String> instructions) {
+        Map<String, Step> steps = parseSteps(instructions);
+
+        List<String> orderedSteps = new ArrayList<>();
+
+        while (!steps.isEmpty()) {
+            String nextStep = nextStep(steps, orderedSteps)
+                    .orElseThrow(() -> new IllegalStateException("No step"));
+            orderedSteps.add(nextStep);
+            steps.remove(nextStep);
+        }
+
+        return String.join("", orderedSteps);
+    }
+
+    Map<String, Step> parseSteps(Stream<String> instructions) {
         Map<String, Step> steps = new HashMap<>();
 
         instructions.map(INSTRUCTION::matcher)
@@ -38,20 +50,14 @@ class InstructionOrder {
                     steps.putIfAbsent(label, new Step(label));
                     steps.get(label).addDependency(prerequisiteLabel);
                 });
+        return steps;
+    }
 
-        List<String> orderedSteps = new ArrayList<>();
-
-        while (!steps.isEmpty()) {
-            String nextStep = steps.values().stream()
-                    .filter(step -> orderedSteps.containsAll(step.getDependsOn()))
-                    .map(Step::getLabel)
-                    .sorted()
-                    .findFirst()
-                    .orElseThrow(() -> new IllegalStateException("No step"));
-            orderedSteps.add(nextStep);
-            steps.remove(nextStep);
-        }
-
-        return String.join("", orderedSteps);
+    Optional<String> nextStep(Map<String, Step> steps, List<String> alreadyCompletedSteps) {
+        return steps.values().stream()
+                .filter(step -> alreadyCompletedSteps.containsAll(step.getDependsOn()))
+                .map(Step::getLabel)
+                .sorted()
+                .findFirst();
     }
 }
