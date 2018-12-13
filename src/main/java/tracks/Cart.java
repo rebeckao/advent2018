@@ -59,4 +59,9 @@ class Cart {
 
         return direction;
     }
+
+    @Override
+    public String toString() {
+        return "" + direction;
+    }
 }
