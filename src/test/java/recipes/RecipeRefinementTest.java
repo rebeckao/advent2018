@@ -21,4 +21,17 @@ class RecipeRefinementTest {
         assertEquals(expected, actual);
     }
 
+    @ParameterizedTest
+    @CsvSource({
+            "51589, 9",
+            "01245, 5",
+            "92510, 18",
+            "59414, 2018",
+            "909441, 20403320"
+    })
+    void nextRecipeScoress(String desiredRecipes, int expected) {
+        int actual = recipeRefinement.necessaryRecipes(desiredRecipes);
+        assertEquals(expected, actual);
+    }
+
 }
