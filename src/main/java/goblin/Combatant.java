@@ -7,6 +7,7 @@ import lombok.Setter;
 class Combatant {
 
     private int healthPoints = 200;
+    @Setter
     private int attackPower = 3;
     @Setter
     private Position position;

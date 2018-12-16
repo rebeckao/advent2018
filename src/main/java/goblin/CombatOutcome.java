@@ -30,6 +30,19 @@ class CombatOutcome {
     }
 
     int outcome() {
+        try {
+            return outcome(0, true);
+        } catch (DeadElfException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    private int outcome(int extraAttackPower, boolean elfDeathAllowed) throws DeadElfException {
+        combatants.stream()
+                .filter(combatant -> combatant.getType() == 'E')
+                .forEach(combatant -> combatant.setAttackPower(3 + extraAttackPower));
+
         int completedTurns = 0;
         while (true) {
             List<Combatant> turnOrder = turnOrder();
@@ -43,7 +56,7 @@ class CombatOutcome {
                             " Health: " + healthOfSurvivors() + ", turns: " + completedTurns);
                     return completedTurns * healthOfSurvivors();
                 }
-                if (attackIfPossible(combatant, possibleEnemies)) {
+                if (attackIfPossible(combatant, possibleEnemies, elfDeathAllowed)) {
                     continue;
                 }
 
@@ -60,9 +73,22 @@ class CombatOutcome {
                     continue;
                 }
                 combatant.setPosition(bestPath.get().nextStep());
-                attackIfPossible(combatant, possibleEnemies);
+                attackIfPossible(combatant, possibleEnemies, elfDeathAllowed);
             }
             completedTurns++;
+            System.out.println(completedTurns);
+        }
+    }
+
+    int outcomeWithWeapons() {
+        int extraAttackPower = 0;
+        while(true) {
+            try {
+                return outcome(extraAttackPower, false);
+            } catch (DeadElfException e) {
+                System.out.println("Extra attack power not enough: " + extraAttackPower);
+                extraAttackPower++;
+            }
         }
     }
 
@@ -73,7 +99,7 @@ class CombatOutcome {
                 .sum();
     }
 
-    private boolean attackIfPossible(Combatant combatant, List<Combatant> possibleEnemies) {
+    private boolean attackIfPossible(Combatant combatant, List<Combatant> possibleEnemies, boolean elfDeathAllowed) throws DeadElfException {
         Optional<Combatant> reachableEnemy = possibleEnemies.stream()
                 .filter(enemy -> !enemy.isDead())
                 .filter(enemy -> directlyReachableFrom(enemy, combatant.getPosition()))
@@ -82,6 +108,9 @@ class CombatOutcome {
             Combatant target = reachableEnemy.get();
             attack(combatant, target);
             if (target.isDead()) {
+                if (target.getType() == 'E' && !elfDeathAllowed) {
+                    throw new DeadElfException();
+                }
                 combatants.remove(target);
             }
             return true;
