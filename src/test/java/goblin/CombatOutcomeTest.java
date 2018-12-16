@@ -8,7 +8,6 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class CombatOutcomeTest {
-    private CombatOutcome combatOutcome = new CombatOutcome();
 
     @ParameterizedTest
     @CsvSource({
@@ -55,10 +54,23 @@ class CombatOutcomeTest {
                     "$...$...$;" +
                     "$.G...G.$;" +
                     "$.....G.$;" +
-                    "$$$$$$$$$,18740"
+                    "$$$$$$$$$,18740",
+            "$$$$$$$;" +
+                    "$.E..G$;" +
+                    "$.$$$$$;" +
+                    "$G$$$$$;" +
+                    "$$$$$$$, 10234",
+            "$$$$$$$$$$$$$$$$;" +
+            "$.......G......$;" +
+            "$G.............$;" +
+            "$..............$;" +
+            "$....$$$$$$$$$$$;" +
+            "$....$$$$$$$$$$$;" +
+            "$.......EG.....$;" +
+            "$$$$$$$$$$$$$$$$, 18468"
     })
     void outcome(String map, int expected) {
-        int actual = combatOutcome.outcome(List.of(map.split(";")));
+        int actual = new CombatOutcome(List.of(map.split(";"))).outcome();
         assertEquals(expected, actual);
     }
 }
