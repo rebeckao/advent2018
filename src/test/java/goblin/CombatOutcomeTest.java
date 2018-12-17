@@ -70,7 +70,7 @@ class CombatOutcomeTest {
                     "$$$$$$$$$$$$$$$$, 18468"
     })
     void outcome(String map, int expected) {
-        int actual = new CombatOutcome(List.of(map.split(";"))).outcome();
+        int actual = CombatOutcome.outcomeWithoutWeapons(List.of(map.split(";")));
         assertEquals(expected, actual);
     }
 
@@ -115,7 +115,7 @@ class CombatOutcomeTest {
                     "$$$$$$$$$,1140"
     })
     void outcomeWithWeapons(String map, int expected) {
-        int actual = new CombatOutcome(List.of(map.split(";"))).outcomeWithWeapons();
+        int actual = CombatOutcome.outcomeWithWeapons(List.of(map.split(";")));
         assertEquals(expected, actual);
     }
 }

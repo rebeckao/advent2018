@@ -26,9 +26,11 @@ class Pathfinder {
                         .filter(pos -> pos.equals(currentPosition) || combatOutcome.positionIsUnoccupied(pos))
                         .filter(pos -> !visited.contains(pos))
                         .map(pos -> DungeonPath.branchOffPath(current, pos))
-                        .forEach(queue::add);
+                        .forEach(path -> {
+                            queue.add(path);
+                            visited.add(path.lastStep());
+                        });
             }
-            visited.add(current.lastStep());
         }
         return null;
     }

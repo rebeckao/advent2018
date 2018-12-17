@@ -14,35 +14,48 @@ import static java.util.stream.Collectors.toList;
 class CombatOutcome {
     private List<Combatant> combatants = new ArrayList<>();
     private char[][] dungeon;
+    private boolean elfDeathAllowed;
+    private int extraAttackPower;
 
     public static void main(String[] args) {
         try {
             List<String> lines = Files.readAllLines(Paths.get("./src/main/resources/day15_goblin_war.txt"));
-            CombatOutcome combatOutcome = new CombatOutcome(lines);
-            System.out.println(combatOutcome.outcome());
+            System.out.println(outcomeWithoutWeapons(lines));
+            System.out.println(outcomeWithWeapons(lines));
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    CombatOutcome(List<String> map) {
+    private CombatOutcome(List<String> map, boolean elfDeathAllowed, int extraAttackPower) {
+        this.elfDeathAllowed = elfDeathAllowed;
+        this.extraAttackPower = extraAttackPower;
         parseMap(map);
     }
 
-    int outcome() {
+    static int outcomeWithoutWeapons(List<String> map) {
         try {
-            return outcome(0, true);
+            return new CombatOutcome(map, true, 0).outcome();
         } catch (DeadElfException e) {
             e.printStackTrace();
         }
         return 0;
     }
 
-    private int outcome(int extraAttackPower, boolean elfDeathAllowed) throws DeadElfException {
-        combatants.stream()
-                .filter(combatant -> combatant.getType() == 'E')
-                .forEach(combatant -> combatant.setAttackPower(3 + extraAttackPower));
+    static int outcomeWithWeapons(List<String> map) {
+        int extraAttackPower = 0;
+        while(extraAttackPower < 200) {
+            try {
+                return new CombatOutcome(map, false, extraAttackPower).outcome();
+            } catch (DeadElfException e) {
+                System.out.println("Extra attack power not enough: " + extraAttackPower);
+                extraAttackPower++;
+            }
+        }
+        return -1;
+    }
 
+    private int outcome() throws DeadElfException {
         int completedTurns = 0;
         while (true) {
             List<Combatant> turnOrder = turnOrder();
@@ -56,7 +69,7 @@ class CombatOutcome {
                             " Health: " + healthOfSurvivors() + ", turns: " + completedTurns);
                     return completedTurns * healthOfSurvivors();
                 }
-                if (attackIfPossible(combatant, possibleEnemies, elfDeathAllowed)) {
+                if (attackIfPossible(combatant, possibleEnemies)) {
                     continue;
                 }
 
@@ -73,22 +86,9 @@ class CombatOutcome {
                     continue;
                 }
                 combatant.setPosition(bestPath.get().nextStep());
-                attackIfPossible(combatant, possibleEnemies, elfDeathAllowed);
+                attackIfPossible(combatant, possibleEnemies);
             }
             completedTurns++;
-            System.out.println(completedTurns);
-        }
-    }
-
-    int outcomeWithWeapons() {
-        int extraAttackPower = 0;
-        while(true) {
-            try {
-                return outcome(extraAttackPower, false);
-            } catch (DeadElfException e) {
-                System.out.println("Extra attack power not enough: " + extraAttackPower);
-                extraAttackPower++;
-            }
         }
     }
 
@@ -99,7 +99,7 @@ class CombatOutcome {
                 .sum();
     }
 
-    private boolean attackIfPossible(Combatant combatant, List<Combatant> possibleEnemies, boolean elfDeathAllowed) throws DeadElfException {
+    private boolean attackIfPossible(Combatant combatant, List<Combatant> possibleEnemies) throws DeadElfException {
         Optional<Combatant> reachableEnemy = possibleEnemies.stream()
                 .filter(enemy -> !enemy.isDead())
                 .filter(enemy -> directlyReachableFrom(enemy, combatant.getPosition()))
@@ -166,7 +166,11 @@ class CombatOutcome {
             for (int column = 0; column < currentRow.length(); column++) {
                 char currentCharacter = currentRow.charAt(column);
                 if (currentCharacter == 'G' || currentCharacter == 'E') {
-                    combatants.add(new Combatant(row, column, currentCharacter));
+                    Combatant combatant = new Combatant(row, column, currentCharacter);
+                    if (combatant.getType() == 'E') {
+                        combatant.setAttackPower(3 + extraAttackPower);
+                    }
+                    combatants.add(combatant);
                     currentCharacter = '.';
                 }
                 dungeon[row][column] = currentCharacter;

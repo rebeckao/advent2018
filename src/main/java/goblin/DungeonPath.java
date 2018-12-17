@@ -38,4 +38,9 @@ class DungeonPath {
         nextStep = steps.get(steps.size() - 2);
         return this;
     }
+
+    @Override
+    public String toString() {
+        return steps.toString();
+    }
 }
