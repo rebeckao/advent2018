@@ -7,6 +7,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
+import static common.Util.toCharMatrix;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -106,14 +107,5 @@ class ReachableTilesTest {
         char[][] expectedMatrix = toCharMatrix(expectedString);
         char[][] actual = reachableTiles.fillWithWater(toCharMatrix(mapString));
         assertTrue(Arrays.deepEquals(expectedMatrix, actual));
-    }
-
-    private char[][] toCharMatrix(String beforeFill) {
-        String[] rows = beforeFill.split(";");
-        char[][] map = new char[rows.length][rows[0].length()];
-        for (int i = 0; i < rows.length; i++) {
-            map[i] = rows[i].toCharArray();
-        }
-        return map;
     }
 }

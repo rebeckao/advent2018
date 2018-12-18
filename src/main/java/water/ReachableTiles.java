@@ -1,5 +1,6 @@
 package water;
 
+import common.Util;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -13,6 +14,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+
+import static common.Util.display;
 
 class ReachableTiles {
     private static final Pattern VERTICAL_RESERVOIR = Pattern.compile("x=(\\d+), y=(\\d+)\\.\\.(\\d+)");
@@ -54,7 +57,7 @@ class ReachableTiles {
 //            System.out.println("After " + turns + " turns:");
 //            display(map);
             turns++;
-            char[][] newMap = clone(map);
+            char[][] newMap = Util.clone(map);
             flow(newMap);
             if (Arrays.deepEquals(map, newMap)) {
                 System.out.println(turns);
@@ -121,15 +124,6 @@ class ReachableTiles {
         return map;
     }
 
-    private char[][] clone(char[][] original) {
-        int length = original.length;
-        char[][] target = new char[length][original[0].length];
-        for (int i = 0; i < length; i++) {
-            System.arraycopy(original[i], 0, target[i], 0, original[i].length);
-        }
-        return target;
-    }
-
     private int flowLeft(char[][] map, int x, int y) {
         return flowInDirection(map, x, y, -1);
     }
@@ -158,15 +152,6 @@ class ReachableTiles {
             newX += direction;
         }
         return -1;
-    }
-
-    private void display(char[][] clayMap) {
-        for (char[] row : clayMap) {
-            for (char square : row) {
-                System.out.print(square == 0 ? '.' : square);
-            }
-            System.out.println();
-        }
     }
 
     private Stream<Coordinate> parseCoordinates(String reservoir) {
