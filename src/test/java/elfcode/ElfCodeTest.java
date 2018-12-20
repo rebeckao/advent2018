@@ -20,7 +20,7 @@ class ElfCodeTest {
                 "setr 1 0 0",
                 "seti 8 0 4",
                 "seti 9 0 5"
-        ), 0);
+        ));
         assertEquals(6, actual);
     }
 }

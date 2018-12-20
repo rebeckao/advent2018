@@ -5,6 +5,7 @@ import programming.Opcode;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -35,19 +36,20 @@ class ElfCode {
     public static void main(String[] args) {
         try {
             List<String> instructions = Files.readAllLines(Paths.get("./src/main/resources/day19_programming.txt"));
-            System.out.println(new ElfCode().valueInRegistry0AfterProgram(instructions, 0));
-            System.out.println(new ElfCode().valueInRegistry0AfterProgram(instructions, 1));
+            System.out.println(new ElfCode().valueInRegistry0AfterProgram(instructions));
+            System.out.println(new ElfCode().sumOfFactors(10551288));
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    int valueInRegistry0AfterProgram(List<String> lines, int initialValueOfRegistry0) {
+    int valueInRegistry0AfterProgram(List<String> lines) {
         int pointerRegister = Integer.parseInt(lines.get(0).substring(4));
         List<Instruction> instructions = lines.stream()
                 .map(INSTRUCTION::matcher)
                 .filter(Matcher::matches)
                 .map(matcher -> Instruction.builder()
+                        .opcodeName(matcher.group(1))
                         .opcode(OPCODES.get(matcher.group(1)))
                         .a(Integer.parseInt(matcher.group(2)))
                         .b(Integer.parseInt(matcher.group(3)))
@@ -55,25 +57,25 @@ class ElfCode {
                         .build()
                 ).collect(Collectors.toList());
         int[] registers = new int[6];
-        registers[0] = initialValueOfRegistry0;
         int pointerValue = registers[pointerRegister];
 
         while (true) {
             registers[pointerRegister] = pointerValue;
             Instruction instruction = instructions.get(pointerValue);
-//            System.out.println(String.format("ip=%d %s %d %d %d",
-//                    registers[pointerRegister],
-//                    Arrays.toString(registers),
-//                    instruction.getA(),
-//                    instruction.getB(),
-//                    instruction.getC()
-//            ));
+            System.out.print(String.format("ip=%d %s %s %d %d %d ",
+                    registers[pointerRegister],
+                    Arrays.toString(registers),
+                    instruction.getOpcodeName(),
+                    instruction.getA(),
+                    instruction.getB(),
+                    instruction.getC()
+            ));
             registers[instruction.getC()] = instruction.getOpcode().compute(
                     instruction.getA(),
                     instruction.getB(),
                     registers
             );
-//            System.out.println("Registers after: " + Arrays.toString(registers));
+            System.out.println("Registers after: " + Arrays.toString(registers));
             pointerValue = registers[pointerRegister];
             pointerValue++;
             if (pointerValue >= instructions.size()) {
@@ -81,4 +83,17 @@ class ElfCode {
             }
         }
     }
+
+    // This is what the elf code program of part 2 actually does
+    int sumOfFactors(int number) {
+        int sumOfFactors = 0;
+        for (int i = 1; i <= number; i++) {
+            if (number % i == 0) {
+                sumOfFactors += i;
+            }
+        }
+        return sumOfFactors;
+    }
+
+
 }
